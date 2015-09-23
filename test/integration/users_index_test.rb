@@ -17,6 +17,7 @@ class UsersIndexTest < ActionDispatch::IntegrationTest
       assert_select 'a[href=?]', user_path(user), text: user.name
       unless user == @admin
         assert_select 'a[href=?]', user_path(user), text: 'delete'
+        assert user.activated?
       end
     end
     assert_difference 'User.count', -1 do
@@ -28,5 +29,16 @@ class UsersIndexTest < ActionDispatch::IntegrationTest
     log_in_as(@non_admin)
     get users_path
     assert_select 'a', text: 'delete', count: 0
+  end
+  
+  test "user should not show up if not activated" do
+    @non_admin.toggle!(:activated)
+    get user_path(@non_admin)
+    assert_redirected_to root_url
+  end
+  
+  test "user should show up if activated" do
+    get user_path(@non_admin)
+    assert_template 'users/show'
   end
 end
