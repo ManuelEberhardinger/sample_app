@@ -58,12 +58,22 @@ class UsersControllerTest < ActionController::TestCase
     assert_redirected_to root_url
   end
   
-   test "should not allow the admin attribute to be edited via the web" do
+  test "should not allow the admin attribute to be edited via the web" do
     log_in_as(@other_user)
     assert_not @other_user.admin?
     patch :update, id: @other_user, user: { password:              "password",
                                             password_confirmation: "password",
                                             admin: true }
     assert_not @other_user.reload.admin?
+  end
+  
+  test "should redirect following when not logged in" do
+    get :following, id: @user
+    assert_redirected_to login_url
+  end
+  
+  test "should redirect followers when not logged in" do
+    get :followers, id: @user
+    assert_redirected_to login_url
   end
 end
